@@ -14,7 +14,7 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/2b46db01-b3cb-49e7-933b-7065133788c7";
+    { device = "/dev/disk/by-label/ERDTREE";
       fsType = "ext4";
     };
 

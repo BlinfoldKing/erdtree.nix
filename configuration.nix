@@ -14,11 +14,9 @@ in {
       ./term/erdtree.nix
     ];
 
-  boot.loader.systemd-boot.enable = false;
-  boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.grub.device = "nodev";
+  boot.loader.systemd-boot.enable = true;
   boot.loader.grub.useOSProber = true;
-  boot.loader.grub.efiSupport = true;
+  boot.loader.grub.device = "/dev/disk/by-label/BOOT";
   
   networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   networking.wireless.userControlled.enable = true;  # Enables wireless support via wpa_supplicant.
