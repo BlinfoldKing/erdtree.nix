@@ -8,22 +8,21 @@ in {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      ./user.nix
+      ./nvim/erdtree.nix
+      ./qtile/erdtree.nix
+      ./term/erdtree.nix
     ];
 
-  # Use the systemd-boot EFI boot loader.
-  boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.enable = false;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.grub.device = "/dev/sdc3";
+  boot.loader.grub.device = "nodev";
   boot.loader.grub.useOSProber = true;
-
-  networking.hostName = "valhalla"; # Define your hostname.
+  boot.loader.grub.efiSupport = true;
+  
   networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   networking.wireless.userControlled.enable = true;  # Enables wireless support via wpa_supplicant.
-  networking.wireless.networks = {
-    DANU = {
-      pskRaw = "c0fbbc1013115e46b2d9002b198e044005d3fcd046e400e2a751ba0492226bd5";
-    };
-  };
+
   # Set your time zone.
   time.timeZone = "Asia/Jakarta";
 
@@ -48,14 +47,14 @@ in {
   # Enable the X11 windowing system.
   services.xserver.enable = true;
 
-
   # Enable the Plasma 5 Desktop Environment.
   services.xserver.desktopManager.plasma5.enable = true;
   services.xserver.displayManager.sddm.enable = true;
-  services.xserver.displayManager.defaultSession = "none+qtile";
+  services.xserver.displayManager.defaultSession = "none+placidusax";
   services.xserver.windowManager = {
-    qtile.enable = true;
+    placidusax.enable = true;
   };
+
 
   # Configure keymap in X11
   services.xserver.layout = "us";
@@ -71,13 +70,6 @@ in {
   # Enable touchpad support (enabled default in most desktopManager).
   services.xserver.libinput.enable = true;
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.blinfoldking = {
-    isNormalUser = true;
-    extraGroups = [ "wheel" "docker" ]; # Enable ‘sudo’ for the user.
-    shell = pkgs.nushell;
-  };
-
   # install NUR
   nixpkgs.config.packageOverrides = pkgs: {
     nur = import (builtins.fetchTarball "https://github.com/nix-community/NUR/archive/master.tar.gz") {
@@ -89,9 +81,19 @@ in {
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
+  services.picom.enable = true;
+  services.picom.activeOpacity = 0.9;
+  services.picom.inactiveOpacity = 0.9;
+  services.picom.experimentalBackends = true;
+  services.picom.settings = {
+    method = "gaussian";
+    size = 10;
+    deviation = 5.0;
+  };
+
+
   environment.systemPackages = with pkgs; [
     gcc
-    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
     firefox
     curl
@@ -101,12 +103,12 @@ in {
     rustup
     nnn
     nitrogen
-    picom
     dmenu
     starship 
     home-manager
     os-prober
-    neovim
+    pavucontrol
+    nerd-font-patcher
     nerdfonts
     python39Packages.pip
     python39Packages.pynvim
@@ -116,14 +118,14 @@ in {
     ngrok
     rofi
     go_1_18
+    cmake
+    gnumake
+    gparted
   ];
 
   programs.neovim = {
+    package = pkgs.neovim-unwrapped; 
     enable = true;
-    package = unstable.neovim-unwrapped; 
-    configure = {
-      customRC = builtins.readFile ./.vimrc;
-    };
   };
 
   # Some programs need SUID wrappers, can be configured further or are

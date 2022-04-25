@@ -1,0 +1,9 @@
+[submodule "nvim"]
+	path = nvim
+	url = git@github.com:BlinfoldKing/fortissax.nvim.git
+[submodule "qtile"]
+	path = qtile
+	url = git@github.com:BlinfoldKing/placidusax.py.git
+[submodule "term"]
+	path = term
+	url = git@github.com:BlinfoldKing/lansseax.term.git
