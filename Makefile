@@ -14,6 +14,8 @@ install:
 	@nix-env -f '<nixpkgs>' -iA nixos-install-tools
 	@sudo groupadd -g 30000 nixbld
 	@sudo useradd -u 30000 -g nixbld -G nixbld nixbld
+	@sudo mount /dev/disk/by-label/ERDTREE /mnt
+	@sudo nix-install --root /mnt
 	@sudo userdel nixbld
 	@sudo groupdel nixbld
 	@sudo rm -rv ~/.nix-* /nix
