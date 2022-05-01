@@ -3,27 +3,30 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, ... }:
-let unstable = import <nixos> {};
+let 
+unstable = import <nixos> {};
+pythonPackages = python-packages: with python-packages; [
+    pip
+    pip-tools
+    bootstrapped-pip
+    pipBuildHook
+    pipInstallHook
+];
+customPython3 = pkgs.python39.withPackages pythonPackages;
 in {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ./user.nix
+      ./user.config.nix
       ./nvim/erdtree.nix
-      ./qtile/erdtree.nix
-      ./term/erdtree.nix
     ];
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.grub.useOSProber = true;
   boot.loader.grub.device = "/dev/disk/by-label/BOOT";
+  boot.loader.efi.canTouchEfiVariables = true;
   
-  networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  networking.wireless.userControlled.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Set your time zone.
-  time.timeZone = "Asia/Jakarta";
-
+  networking.networkmanager.enable = true;
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
@@ -45,15 +48,6 @@ in {
   # Enable the X11 windowing system.
   services.xserver.enable = true;
 
-  # Enable the Plasma 5 Desktop Environment.
-  services.xserver.desktopManager.plasma5.enable = true;
-  services.xserver.displayManager.sddm.enable = true;
-  services.xserver.displayManager.defaultSession = "none+placidusax";
-  services.xserver.windowManager = {
-    placidusax.enable = true;
-  };
-
-
   # Configure keymap in X11
   services.xserver.layout = "us";
   # services.xserver.xkbOptions = "eurosign:e";
@@ -63,62 +57,77 @@ in {
 
   # Enable sound.
   sound.enable = true;
-  hardware.pulseaudio.enable = true;
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
 
   # Enable touchpad support (enabled default in most desktopManager).
   services.xserver.libinput.enable = true;
 
-  # install NUR
+ # install NUR
   nixpkgs.config.packageOverrides = pkgs: {
     nur = import (builtins.fetchTarball "https://github.com/nix-community/NUR/archive/master.tar.gz") {
       inherit pkgs;
     };
   };
 
-  nixpkgs.config.allowUnfree = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  services.picom.enable = true;
-  services.picom.activeOpacity = 0.9;
-  services.picom.inactiveOpacity = 0.9;
-  services.picom.experimentalBackends = true;
-  services.picom.settings = {
-    method = "gaussian";
-    size = 10;
-    deviation = 5.0;
-  };
 
+  fonts.fonts = with pkgs; [
+    (nerdfonts.override { fonts = [ "CascadiaCode" "Terminus"]; })
+  ];
 
   environment.systemPackages = with pkgs; [
-    gcc
-    wget
+    # gui
     firefox
-    curl
-    git
-    kitty
-    nushell
-    rustup
-    nnn
     nitrogen
-    dmenu
+    pavucontrol
+    font-manager
+    gparted
+
+    # language
+    gcc
+    customPython3
+    rustup
+    go_1_18
+    gopls
+    
+    # dev tools
+    git
+    cmake
+    gnumake
+    docker 
+    docker-compose
+    dolphin
+
+    # terminal desktop environment
+    pfetch
+    wget
+    curl
+    kitty
+    nnn
     starship 
     home-manager
     os-prober
-    pavucontrol
     nerd-font-patcher
-    nerdfonts
-    python39Packages.pip
-    python39Packages.pynvim
-    font-manager
-    docker 
-    docker-compose
     ngrok
+    dunst
+    libnotify
+    jq
+    unar
+    unzip
+    ripgrep
+    eww
+    zsh
     rofi
-    go_1_18
-    cmake
-    gnumake
-    gparted
+    pulseaudio
+    wirelesstools
   ];
 
   programs.neovim = {
@@ -135,10 +144,11 @@ in {
   };
 
   # List services that you want to enable:
+  virtualisation.docker.enable = true;
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-
+ 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
