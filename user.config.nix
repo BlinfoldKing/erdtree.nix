@@ -4,6 +4,8 @@ let
     username = "blinfoldking";
     initialPassword = "root";
     hostname = "erdtree";
+    enable_plasma = true; 
+    # make sure you wallpaper path were accessible by root user
     wallpaper = "/etc/nixos/wallpaper.jpg";
     applications = with pkgs; [
         # install your application here
@@ -27,6 +29,7 @@ in
                 // { username = username; }
             )
         )
+        ./nvim/erdtree.nix
     ];
 
     networking.hostName = hostname; # Define your hostname.
@@ -40,6 +43,7 @@ in
             "docker"
             "audio"
             "networkmanager"
+            "vboxusers"
         ]; 
         shell = pkgs.xonsh;
     };
@@ -49,6 +53,8 @@ in
 
     # pick your display manager 
     services.xserver.windowManager.placidusax.wallpaper = wallpaper;
+    # fallback de when placidusax fails
+    services.xserver.desktopManager.plasma5.enable = enable_plasma;
     services.xserver.displayManager.lightdm.enable = true;
     services.xserver.displayManager.lightdm.greeters.mini = {
         enable = true;

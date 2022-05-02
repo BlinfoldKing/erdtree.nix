@@ -22,3 +22,6 @@ update-qtile:
 	@eww -c /etc/nixos/qtile/eww daemon
 	@eww -c /etc/nixos/qtile/eww open bar
 
+iso:
+	@make reconfig
+	@nix-build '<nixpkgs/nixos>' -A config.system.build.isoImage -I nixos-config=iso.nix

@@ -18,7 +18,6 @@ in {
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       ./user.config.nix
-      ./nvim/erdtree.nix
     ];
 
   boot.loader.systemd-boot.enable = true;
@@ -145,6 +144,7 @@ in {
 
   # List services that you want to enable:
   virtualisation.docker.enable = true;
+  virtualisation.virtualbox.host.enable = true;
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
